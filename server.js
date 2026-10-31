@@ -6,7 +6,21 @@ let inventarioContas = {};
 
 app.post('/meu-painel', (req, res) => {
     const { username, level, fruits } = req.body;
-    inventarioContas[username] = { level, frutas: fruits || [], atualizadoEm: new Date() };
+    
+    // Tratamento de dados seguro para aceitar o formato enviado pelo Roblox
+    let listaDeFrutas = [];
+    if (Array.isArray(fruits)) {
+        listaDeFrutas = fruits;
+    } else if (typeof fruits === 'string') {
+        listaDeFrutas = [fruits]; // Transforma string em array para não quebrar o .join()
+    }
+
+    inventarioContas[username] = { 
+        level: level || 0, 
+        frutas: listaDeFrutas, 
+        atualizadoEm: new Date() 
+    };
+    
     console.log(`[ATUALIZADO] Conta: ${username}`);
     res.status(200).send({ status: "Sucesso" });
 });
@@ -40,6 +54,6 @@ app.get('/meu-painel', (req, res) => {
     `);
 });
 
-// CORREÇÃO PARA O RENDER: Usa a porta dinâmica do servidor deles ou a 3000 como reserva local
+// Excelente configuração para o Render! Usa a porta deles de forma dinâmica
 const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => console.log(`Painel online na porta ${PORT}`));
